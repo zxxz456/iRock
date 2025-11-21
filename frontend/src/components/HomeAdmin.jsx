@@ -54,11 +54,20 @@ const HomeAdmin = () => {
       block.block_type === 'boulder'
     ).length;
 
+    // console.log(participantsInfo)
     // Count total and active users
-    const totalUsers = participantsInfo.length;
-    const activeUsers = participantsInfo.filter(participant => 
-      participant.is_active === true
+    // Dmins does not count towards total users nor active users
+    const admins = participantsInfo.filter(participant => 
+      participant.is_staff === true
     ).length;
+    const totalUsers = participantsInfo.length - admins;
+    const activeUsers = participantsInfo.filter(participant => 
+      participant.is_active === true && participant.is_staff !== true
+    ).length;
+    
+    // console.log("Admins count:", admins);
+    // console.log("Total users (excluding admins):", totalUsers);
+    // console.log("Active users (excluding admins):", activeUsers);
 
     return { rutasCount, bouldersCount, totalUsers, activeUsers };
   };
@@ -77,10 +86,25 @@ const HomeAdmin = () => {
     const rutas = routesInfo.filter(block => block.block_type === 'ruta');
     const boulders = routesInfo.filter(block => block.block_type === 'boulder');
 
-    // Sort routes by grade
+    // Sort routes by grad
     const rutasSorted = [...rutas].sort((a, b) => {
-      // Simple string comparison of grades (works for format 5.10a, 5.10b, etc.)
-      return a.grade.localeCompare(b.grade);
+      const getParts = (grade) => {
+        const match = (grade.grade || grade).match(/^5\.(\d+)([a-d]?)$/);
+        return match ? { num: parseInt(match[1]), sub: match[2] || '' } : 
+                       { num: 0, sub: '' };
+      };
+      
+      const partsA = getParts(a);
+      const partsB = getParts(b);
+      
+      // Comparar números primero
+      if (partsA.num !== partsB.num) {
+        return partsA.num - partsB.num;
+      }
+      
+      // Comparar subgrados después
+      const subOrder = { '': 0, 'a': 1, 'b': 2, 'c': 3, 'd': 4 };
+      return subOrder[partsA.sub] - subOrder[partsB.sub];
     });
 
     // Sort boulders by grade
@@ -89,9 +113,12 @@ const HomeAdmin = () => {
     });
 
     return {
-      highestRuta: rutasSorted.length > 0 ? rutasSorted[rutasSorted.length - 1].grade : 'N/A',
-      lowestRuta: rutasSorted.length > 0 ? rutasSorted[0].grade : 'N/A',
-      highestBoulder: bouldersSorted.length > 0 ? bouldersSorted[bouldersSorted.length - 1].grade : 'N/A',
+      highestRuta: rutasSorted.length > 0 ? 
+        rutasSorted[rutasSorted.length - 1].grade : 'N/A',
+      lowestRuta: rutasSorted.length > 0 ? 
+        rutasSorted[0].grade : 'N/A',
+      highestBoulder: bouldersSorted.length > 0 ? 
+        bouldersSorted[bouldersSorted.length - 1].grade : 'N/A',
       lowestBoulder: bouldersSorted.length > 0 ? bouldersSorted[0].grade : 'N/A'
     };
   };
@@ -108,10 +135,14 @@ const HomeAdmin = () => {
     }
 
     return {
-      kids: participantsInfo.filter(p => p.cup === 'kids').length,
-      principiante: participantsInfo.filter(p => p.cup === 'principiante').length,
-      intermedio: participantsInfo.filter(p => p.cup === 'intermedio').length,
-      avanzado: participantsInfo.filter(p => p.cup === 'avanzado').length
+      kids: participantsInfo.filter(
+        p => p.cup === 'kids' && !p.is_staff).length,
+      principiante: participantsInfo.filter(
+        p => p.cup === 'principiante' && !p.is_staff).length,
+      intermedio: participantsInfo.filter(
+        p => p.cup === 'intermedio' && !p.is_staff).length,
+      avanzado: participantsInfo.filter(
+        p => p.cup === 'avanzado' && !p.is_staff).length
     };
   };
 

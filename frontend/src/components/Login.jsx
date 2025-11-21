@@ -14,6 +14,10 @@ import useSnackBar from './hooks/useSnackBar.jsx';
     Login Page
 */
 
+// DANGEROUS: for testing time-based redirection
+// remove before production
+let godUserTestEmail = "tralalero@gmail.com";
+
 const Login = () => {
 
     const {showSnackbar, snackbarProps} = useSnackBar();
@@ -71,24 +75,40 @@ const Login = () => {
                 is_active: response.data.is_active,
                 cup: response.data.cup,
             }));
+
+            // Admins can go to admin page
+            // DANGEROUS: for testing time-based redirection
+            // remove before production
+            if (response.data.is_staff || response.data.is_superuser
+                || response.data.email === godUserTestEmail) {
+                // Admin/Staff users go to admin page
+                console.log('Redirecting to /admin');
+                navigate('/admin');
+                return;
+            }
             
-            // Check if user is inactive
-            if (!response.data.is_active) {
+            // Check if user is inactive or before target date
+            const targetDate = new Date('2025-12-06T08:00:00');
+            const currentDate = new Date();
+            
+            if (!response.data.is_active ) {
                 console.log('User is inactive, redirecting to /inactive');
                 navigate('/inactive');
                 return;
             }
-            
-            // Redirect based on user type
-            if (response.data.is_staff || response.data.is_superuser) {
-                // Admin/Staff users go to admin page
-                console.log('Redirecting to /admin');
-                navigate('/admin');
-            } else {
-                // Normal users go to participant page
-                console.log('Redirecting to /participant');
-                navigate('/participant');
+
+            if (currentDate < targetDate ) {
+                console.log('Current date is before target date, \
+                    redirecting to /inactive-date');
+                navigate('/inactive-date');
+                return;
             }
+            
+            // Normal users go to participant page
+            console.log('Redirecting to /participant');
+            navigate('/participant');
+            return;
+
         })
         .catch(error => {
             console.error('There was an error logging in!', error);

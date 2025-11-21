@@ -2,7 +2,7 @@ asgiref==3.10.0
 Django==5.2.8
 django-cors-headers==4.9.0
 django-rest-knox==5.0.2
-djangorestframework==3.16.1S
+djangorestframework==3.16.1
 sqlparse==0.5.3
 whitenoise==6.11.0
 gunicorn==21.2.0

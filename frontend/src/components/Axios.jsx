@@ -12,6 +12,10 @@ const getBaseURL = () => {
   const hostname = window.location.hostname;
   const protocol = window.location.protocol;
   
+  // MODO DESARROLLO: Forzar localhost
+  // Descomenta esta línea para desarrollo local:
+  // return 'http://localhost:8000/';
+  
   let baseURL;
   // If it's localhost in development, use port 8000
   if (hostname === 'localhost' || hostname === '127.0.0.1') {

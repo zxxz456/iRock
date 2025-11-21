@@ -66,21 +66,21 @@ const RegisterAscension = () => {
   const isRouteValidForCup = (route, userCup) => {
     const gradesByCategory = {
       'kids': {
-        rutas: ['5.8', '5.9'],
+        rutas: ['5.8', '5.9', '5.10a'],
         boulders: ['V0', 'V1']
       },
       'principiante': {
-        rutas: ['5.9', '5.10a', '5.10b'],
-        boulders: ['V1', 'V2', 'V3']
+        rutas: ['5.9', '5.10a', '5.10b', '5.10c'],
+        boulders: ['V0', 'V1', 'V2']
       },
       'intermedio': {
         rutas: ['5.10b', '5.10c', '5.10d', '5.11a', '5.11b'],
-        boulders: ['V3', 'V4', 'V5', 'V6']
+        boulders: ['V3', 'V4', 'V5']
       },
       'avanzado': {
         rutas: ['5.11c', '5.11d', '5.12a', '5.12b', '5.12c', 
           '5.12d', '5.13a', '5.13b', '5.13c', '5.13d'],
-        boulders: ['V7', 'V8', 'V9', 'V10']
+        boulders: ['V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11']
       }
     };
 

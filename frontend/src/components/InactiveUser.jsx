@@ -3,6 +3,7 @@ import { Box, Typography, Button, Paper } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import BlockIcon from '@mui/icons-material/Block';
 
+
 /*
     Component to inform the user that their account is inactive.
 */
@@ -44,25 +45,15 @@ const InactiveUser = () => {
                     <Typography variant="body1" 
                         textAlign="justify" 
                         sx={{ marginBottom: 3, color: '#666' }}>
-                        Tu cuenta está actualmente inactiva. Por favor, 
-                        contacta al administrador 
-                        para activar tu cuenta y poder acceder a todas las
-                         funcionalidades de iRock App.
+                        Tu cuenta está actualmente inactiva por alguna de las 
+                        siguientes razones:
                     </Typography>
                     
                     <Box sx={{ marginBottom: 2 }}>
-                        <Typography variant="body2" sx={{ color: '#888' }}>
-                            <strong>Razones comunes de inactivación:</strong>
-                        </Typography>
+
                         <Typography variant="body2" sx={{ color: '#888', 
                             marginTop: 1 }}>
                             • Registro pendiente de aprobación
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: '#888' }}>
-                            • El rocódromo aun no ha recibido tu pago
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: '#888' }}>
-                            • El torneo aun no ha comenzado
                         </Typography>
                         <Typography variant="body2" sx={{ color: '#888' }}>
                             • Verificación de información de pago pendiente
@@ -71,9 +62,9 @@ const InactiveUser = () => {
 
                     <Typography variant="body1" textAlign="justify" 
                         sx={{ marginBottom: 3, color: '#666' }}>
-                        Una vez que tu pago sea acreditado y comience el torneo
-                         los días 6 y 7 de Diciembre, podrás disfrutar de todas
-                          las funcionalidades de iRock App.
+                        Si ya realizaste tu pago y sigues sin poder acceder,
+                        por favor contacta al personal de recepción para 
+                        resolver el inconveniente.
                     </Typography>
 
                     <Box sx={{ marginTop: 4, display: 'flex', 
@@ -87,11 +78,6 @@ const InactiveUser = () => {
                             Cerrar Sesión
                         </Button>
                     </Box>
-                    
-                    <Typography variant="body2" 
-                        sx={{ marginTop: 3, color: '#999' }}>
-                        ¿Necesitas ayuda? Contacta a: zxxz456@gmail.com
-                    </Typography>
                 </Paper>
         </div>
     );

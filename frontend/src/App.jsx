@@ -25,6 +25,7 @@ import RegisterRouteAdmin from './components/RegisterRouteAdmin.jsx'
 import EditRouteAdmin from './components/EditRouteAdmin.jsx'
 import RegisterParticipantAdmin from './components/RegisterParticipantAdmin.jsx'
 import EditParticipantAdmin from './components/EditParticipantAdmin.jsx'
+import InactiveUserDate from './components/InactiveUserDate.jsx'
 
 /*
   Main application component defining all routes.
@@ -38,9 +39,8 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<RegisterParticipant />} />
         <Route path="/inactive" element={<InactiveUser />} />
-        
+        <Route path="/inactive-date" element={<InactiveUserDate />} />
 
-        
         {/* Routes with UserNavAppBar for regular users */}
         <Route path="/participant" element={
           <ProtectedRoute>
