@@ -6,8 +6,11 @@ import requests
 import logging
 from telegram import Bot
 from telegram.ext import Application, CommandHandler, ContextTypes
+from telegram.error import NetworkError, TimedOut
 import time
 from datetime import datetime
+import qrcode
+from io import BytesIO
 
 """
 TElegram Bot to monitor and manage Cloudflared tunnel for iRock App.
@@ -19,7 +22,14 @@ CHAT_ID = "8310047291"
 LOCAL_URL = "http://localhost:80"
 CHECK_INTERVAL = 60 #time between checks in seconds
 FAILURE_LIMIT = 1  #number of consecutive failures before restart
-LOG_FILE = f"/var/log/cloud_monitor_bot/bot_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+
+# Get script directory for logs
+import os
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+LOG_DIR = os.path.join(SCRIPT_DIR, 'logs')
+os.makedirs(LOG_DIR, exist_ok=True)
+LOG_FILE = os.path.join(LOG_DIR, 
+                        f"bot_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
 
 # logging - both console and file
 logging.basicConfig(
@@ -51,6 +61,47 @@ class TunnelManager:
             logger.info(f"Mensaje enviado: {message}")
         except Exception as e:
             logger.error(f"Error enviando mensaje: {e}")
+    
+    def generate_qr_code(self, url):
+        """
+        Generate QR code for given URL
+        """
+        try:
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_L,
+                box_size=10,
+                border=4,
+            )
+            qr.add_data(url)
+            qr.make(fit=True)
+            
+            img = qr.make_image(fill_color="black", back_color="white")
+            
+            # Save to BytesIO buffer
+            bio = BytesIO()
+            img.save(bio, 'PNG')
+            bio.seek(0)
+            return bio
+        except Exception as e:
+            logger.error(f"Error generando QR: {e}")
+            return None
+    
+    async def send_qr_code(self, url):
+        """
+        Generate and send QR code for URL
+        """
+        try:
+            qr_image = self.generate_qr_code(url)
+            if qr_image:
+                await self.bot.send_photo(
+                    chat_id=self.chat_id,
+                    photo=qr_image,
+                    caption=f"QR Code para: {url}"
+                )
+                logger.info(f"QR code enviado para: {url}")
+        except Exception as e:
+            logger.error(f"Error enviando QR code: {e}")
     
     def start_tunnel(self):
         """
@@ -134,6 +185,7 @@ class TunnelManager:
                 f"-> URL:  {url} \n"
                 f"-> Monitoreo activado cada {CHECK_INTERVAL}s"
             )
+            await self.send_qr_code(url)
         else:
             await self.send_telegram_message(
                 "***ERROR***\nNo se pudo iniciar el tunnel inicial"
@@ -167,6 +219,7 @@ class TunnelManager:
                                 f"----> Tunnel Recuperado <----\n"
                                 f"-> Nueva URL: {new_url}"
                             )
+                            await self.send_qr_code(new_url)
                             consecutive_failures = 0
                         else:
                             await self.send_telegram_message(
@@ -237,7 +290,7 @@ async def status_command(update, context):
 
 async def url_command(update, context):
     """
-    URL command (/url)
+    URL command (/url) - sends URL with QR code
     """
     try:
         tunnel_manager = context.application.tunnel_manager
@@ -247,6 +300,13 @@ async def url_command(update, context):
                 f"----> URL Actual <----\n{tunnel_manager.current_url}",
                 parse_mode='Markdown'
             )
+            # Generate and send QR code
+            qr_image = tunnel_manager.generate_qr_code(tunnel_manager.current_url)
+            if qr_image:
+                await update.message.reply_photo(
+                    photo=qr_image,
+                    caption=f"QR Code para acceso rápido"
+                )
         else:
             await update.message.reply_text("*** NO HAY URL DISPONIBLE ***")
     except Exception as e:
@@ -271,6 +331,13 @@ async def restart_command(update, context):
                 f"----> Tunnel Reiniciado <----\nNueva URL: {new_url}",
                 parse_mode='Markdown'
             )
+            # Send QR code
+            qr_image = tunnel_manager.generate_qr_code(new_url)
+            if qr_image:
+                await update.message.reply_photo(
+                    photo=qr_image,
+                    caption=f"QR Code del nuevo tunnel"
+                )
         else:
             await update.message.reply_text("*** ERROR REINICIANDO TUNNEL ***")
     except Exception as e:
@@ -284,6 +351,12 @@ async def error_handler(update, context):
     """
     Global error handler for bot errors
     """
+    # Ignore network errors - they are handled by retry loop
+    if isinstance(context.error, (NetworkError, TimedOut)):
+        logger.warning(
+            f"Error de red temporal (se reintentará automáticamente): {context.error}")
+        return
+    
     logger.error(f"Update {update} caused error: {context.error}")
     try:
         if update and update.message:
@@ -297,13 +370,16 @@ def main():
     """
     mAIN FNCTION
     """
-    # Set app with custom timeout
+    # Set app with custom timeout and retry config
     application = (
         Application.builder()
         .token(BOT_TOKEN)
         .connect_timeout(30.0)
         .read_timeout(30.0)
         .write_timeout(30.0)
+        .pool_timeout(30.0)
+        .get_updates_connect_timeout(30.0)
+        .get_updates_read_timeout(30.0)
         .build()
     )
     
