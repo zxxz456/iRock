@@ -112,12 +112,16 @@ echo "-> Configurando Gunicorn..."
 echo "---------------------------------------------"
 
 # LOGS DIR
+sudo mkdir -p /var/log/cloud_monitor_bot
+sudo touch /var/log/cloud_monitor_bot/cloud_monitor_bot.log
+sudo chown $CURRENT_USER:$CURRENT_USER /var/log/cloud_monitor_bot/cloud_monitor_bot.log
+
 sudo mkdir -p /var/log/gunicorn
 sudo chown -R "$CURRENT_USER":www-data /var/log/gunicorn
 
 # PID DIR
 sudo mkdir -p /var/run/gunicorn
-sudo chown -R "$CURRENT_USER":www-data /var/run/gunicornn/gunicorn
+sudo chown -R "$CURRENT_USER":www-data /var/run/gunicorn
 
 # Copy irock.service
 sudo cp "$PROJECT_DIR/irock.service" /etc/systemd/system/

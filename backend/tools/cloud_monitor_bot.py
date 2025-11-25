@@ -7,6 +7,7 @@ import logging
 from telegram import Bot
 from telegram.ext import Application, CommandHandler, ContextTypes
 import time
+from datetime import datetime
 
 """
 TElegram Bot to monitor and manage Cloudflared tunnel for iRock App.
@@ -18,11 +19,16 @@ CHAT_ID = "8310047291"
 LOCAL_URL = "http://localhost:80"
 CHECK_INTERVAL = 60 #time between checks in seconds
 FAILURE_LIMIT = 1  #number of consecutive failures before restart
+LOG_FILE = f"/var/log/cloud_monitor_bot/bot_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
-# logging
+# logging - both console and file
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
-    level=logging.INFO
+    level=logging.INFO,
+    handlers=[
+        logging.StreamHandler(),  # Console output
+        logging.FileHandler(LOG_FILE)  # File output
+    ]
 )
 logger = logging.getLogger(__name__)
 
