@@ -1,5 +1,6 @@
 import { React, useState, useEffect } from 'react';
-import { Box, Typography, Paper, Pagination, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Box, Typography, Paper, Pagination, Chip, Table, TableBody, TableCell, 
+  TableContainer, TableHead, TableRow } from '@mui/material';
 import useAuth from './hooks/useAuth.jsx';
 import AxiosObj from './Axios.jsx';
 import CustomSnackbar from './CustomSnackBar.jsx';

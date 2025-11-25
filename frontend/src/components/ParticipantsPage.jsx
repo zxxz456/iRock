@@ -1,11 +1,12 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { MaterialReactTable } from 'material-react-table';
 import { Box, IconButton, Tooltip, Switch, Typography } from '@mui/material';
-import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { Edit as EditIcon, Delete as DeleteIcon, Search as SearchIcon } from '@mui/icons-material';
 import AxiosObj from './Axios.jsx';
 import CustomSnackbar from './CustomSnackBar.jsx';
 import useSnackBar from './hooks/useSnackBar.jsx';
 import EditParticipantAdmin from './EditParticipantAdmin.jsx';
+import ParticipantAscensionsDetail from './ParticipantAscensionsDetail.jsx';
 
 /*
     Participants Page for Admins
@@ -16,7 +17,9 @@ const ParticipantsPage = () => {
     const [participants, setParticipants] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editModalOpen, setEditModalOpen] = useState(false);
+    const [ascensionsModalOpen, setAscensionsModalOpen] = useState(false);
     const [selectedParticipantId, setSelectedParticipantId] = useState(null);
+    const [selectedParticipantName, setSelectedParticipantName] = useState('');
     const { showSnackbar, snackbarProps } = useSnackBar();
 
     // Fetch participants
@@ -66,7 +69,8 @@ const ParticipantsPage = () => {
 
     // Handle delete
     const handleDelete = (row) => {
-        if (window.confirm(`¿Está seguro de eliminar a ${row.original.first_name} ${row.original.last_name}?`)) {
+        if (window.confirm(`¿Está seguro de eliminar a ${row.original.first_name} 
+            ${row.original.last_name}?`)) {
             AxiosObj.delete(`/participants/${row.original.id}/`)
                 .then(response => {
                     showSnackbar('Usuario eliminado correctamente', 'success');
@@ -84,6 +88,15 @@ const ParticipantsPage = () => {
         console.log('Edit participant:', row.original);
         setSelectedParticipantId(row.original.id);
         setEditModalOpen(true);
+    };
+
+    // Handle view ascensions
+    const handleViewAscensions = (row) => {
+        console.log('View ascensions for:', row.original);
+        setSelectedParticipantId(row.original.id);
+        setSelectedParticipantName(`${row.original.first_name} 
+            ${row.original.last_name}`);
+        setAscensionsModalOpen(true);
     };
 
     const handleEditSuccess = () => {
@@ -193,6 +206,14 @@ const ParticipantsPage = () => {
                     positionActionsColumn="last"
                     renderRowActions={({ row }) => (
                         <Box sx={{ display: 'flex', gap: '8px' }}>
+                            <Tooltip title="Ver Ascensiones">
+                                <IconButton
+                                    color="info"
+                                    onClick={() => handleViewAscensions(row)}
+                                >
+                                    <SearchIcon />
+                                </IconButton>
+                            </Tooltip>
                             <Tooltip title="Editar">
                                 <IconButton
                                     color="primary"
@@ -244,6 +265,12 @@ const ParticipantsPage = () => {
                 onClose={() => setEditModalOpen(false)}
                 participantId={selectedParticipantId}
                 onSuccess={handleEditSuccess}
+            />
+            <ParticipantAscensionsDetail
+                open={ascensionsModalOpen}
+                onClose={() => setAscensionsModalOpen(false)}
+                participantId={selectedParticipantId}
+                participantName={selectedParticipantName}
             />
             <CustomSnackbar {...snackbarProps} />
         </Box>
