@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import asyncio
 import subprocess
 import re
@@ -7,6 +8,10 @@ from telegram import Bot
 from telegram.ext import Application, CommandHandler, ContextTypes
 import time
 
+"""
+TElegram Bot to monitor and manage Cloudflared tunnel for iRock App.
+Sends notifications on tunnel status changes and allows manual commands.
+"""
 # Settings
 BOT_TOKEN = "8517209446:AAHsxm0FjlIOyDCQbloAkaP_yTzlOjzVyhg"
 CHAT_ID = "8310047291"
