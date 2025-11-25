@@ -203,59 +203,98 @@ async def status_command(update, context):
     """
     STATUS command (/status)
     """
-    tunnel_manager = context.application.tunnel_manager
-    
-    if tunnel_manager.current_url:
-        status = "UP" if tunnel_manager.check_tunnel_health() else "DOWN"
-        await update.message.reply_text(
-            f"----> Estado del Tunnel <----\n"
-            f"-> Status: {status}\n"
-            f"-> URL: {tunnel_manager.current_url}\n"
-            f"-> Monitoreo: {'ACTIVO' if tunnel_manager.is_running else \
-                             'INACTIVO'}",
-            parse_mode='Markdown'
-        )
-    else:
-        await update.message.reply_text("*** NO HAY TUNNEL ACTIVO ***")
+    try:
+        tunnel_manager = context.application.tunnel_manager
+        
+        if tunnel_manager.current_url:
+            status = "UP" if tunnel_manager.check_tunnel_health() else "DOWN"
+            await update.message.reply_text(
+                f"----> Estado del Tunnel <----\n"
+                f"-> Status: {status}\n"
+                f"-> URL: {tunnel_manager.current_url}\n"
+                f"-> Monitoreo: {'ACTIVO' if tunnel_manager.is_running else 'INACTIVO'}",
+                parse_mode='Markdown'
+            )
+        else:
+            await update.message.reply_text("*** NO HAY TUNNEL ACTIVO ***")
+    except Exception as e:
+        logger.error(f"Error en comando /status: {e}")
+        try:
+            await update.message.reply_text("Error al obtener estado")
+        except:
+            pass
 
 async def url_command(update, context):
     """
     URL command (/url)
     """
-
-    tunnel_manager = context.application.tunnel_manager
-    
-    if tunnel_manager.current_url:
-        await update.message.reply_text(
-            f"----> URL Actual <----\n{tunnel_manager.current_url}",
-            parse_mode='Markdown'
-        )
-    else:
-        await update.message.reply_text("*** NO HAY URL DISPONIBLE ***")
+    try:
+        tunnel_manager = context.application.tunnel_manager
+        
+        if tunnel_manager.current_url:
+            await update.message.reply_text(
+                f"----> URL Actual <----\n{tunnel_manager.current_url}",
+                parse_mode='Markdown'
+            )
+        else:
+            await update.message.reply_text("*** NO HAY URL DISPONIBLE ***")
+    except Exception as e:
+        logger.error(f"Error en comando /url: {e}")
+        try:
+            await update.message.reply_text("Error al obtener URL")
+        except:
+            pass
 
 async def restart_command(update, context):
     """
     RESTART command (/restart)
     """
-    tunnel_manager = context.application.tunnel_manager
-    
-    await update.message.reply_text("-> Reiniciando tunnel...")
-    
-    new_url = tunnel_manager.start_tunnel()
-    if new_url:
-        await update.message.reply_text(
-            f"----> Tunnel Reiniciado <----\nNueva URL: {new_url}",
-            parse_mode='Markdown'
-        )
-    else:
-        await update.message.reply_text("*** ERROR REINICIANDO TUNNEL ***")
+    try:
+        tunnel_manager = context.application.tunnel_manager
+        
+        await update.message.reply_text("-> Reiniciando tunnel...")
+        
+        new_url = tunnel_manager.start_tunnel()
+        if new_url:
+            await update.message.reply_text(
+                f"----> Tunnel Reiniciado <----\nNueva URL: {new_url}",
+                parse_mode='Markdown'
+            )
+        else:
+            await update.message.reply_text("*** ERROR REINICIANDO TUNNEL ***")
+    except Exception as e:
+        logger.error(f"Error en comando /restart: {e}")
+        try:
+            await update.message.reply_text("Error al reiniciar")
+        except:
+            pass
+
+async def error_handler(update, context):
+    """
+    Global error handler for bot errors
+    """
+    logger.error(f"Update {update} caused error: {context.error}")
+    try:
+        if update and update.message:
+            await update.message.reply_text(
+                "Ocurrió un error procesando tu comando. Intenta de nuevo."
+            )
+    except:
+        pass
 
 def main():
     """
     mAIN FNCTION
     """
-    # Set app
-    application = Application.builder().token(BOT_TOKEN).build()
+    # Set app with custom timeout
+    application = (
+        Application.builder()
+        .token(BOT_TOKEN)
+        .connect_timeout(30.0)
+        .read_timeout(30.0)
+        .write_timeout(30.0)
+        .build()
+    )
     
     # Set tunnel mgr
     tunnel_manager = TunnelManager(BOT_TOKEN, CHAT_ID, LOCAL_URL)
@@ -266,6 +305,9 @@ def main():
     application.add_handler(CommandHandler("status", status_command))
     application.add_handler(CommandHandler("url", url_command))
     application.add_handler(CommandHandler("restart", restart_command))
+    
+    # Add error handler
+    application.add_error_handler(error_handler)
     
     logger.info("Iniciando Bot...")
     
