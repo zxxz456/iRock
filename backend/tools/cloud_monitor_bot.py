@@ -11,6 +11,7 @@ import time
 from datetime import datetime
 import qrcode
 from io import BytesIO
+import os
 
 """
 TElegram Bot to monitor and manage Cloudflared tunnel for iRock App.
@@ -24,7 +25,6 @@ CHECK_INTERVAL = 60 #time between checks in seconds
 FAILURE_LIMIT = 1  #number of consecutive failures before restart
 
 # Get script directory for logs
-import os
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 LOG_DIR = os.path.join(SCRIPT_DIR, 'logs')
 os.makedirs(LOG_DIR, exist_ok=True)

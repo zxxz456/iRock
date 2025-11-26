@@ -5,6 +5,8 @@ import {
     Typography,
     Avatar,
     CircularProgress,
+    ButtonGroup,
+    Button,
 } from '@mui/material';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import AxiosObj from './Axios.jsx';
@@ -23,6 +25,7 @@ const LeaderboardPageKids = () => {
         avanzado: [],
     });
     const [loading, setLoading] = useState(true);
+    const [genderFilter, setGenderFilter] = useState('all');
     const { showSnackbar, snackbarProps } = useSnackBar();
 
     const cupLabels = {
@@ -41,19 +44,28 @@ const LeaderboardPageKids = () => {
 
     useEffect(() => {
         fetchLeaderboards();
-    }, []);
+    }, [genderFilter]);
 
     const fetchLeaderboards = () => {
         setLoading(true);
         AxiosObj.get('/participants/')
             .then(response => {
                 const participants = response.data;
-                const kidsParticipants = participants.filter(p => 
+                let kidsParticipants = participants.filter(p => 
                     p.cup === 'kids' && 
                     !p.is_staff && 
                     !p.is_superuser && 
                     p.is_active
                 );
+                
+                // Apply gender filter
+                if (genderFilter === 'male') {
+                    kidsParticipants = 
+                    kidsParticipants.filter(p => p.gender === 'M');
+                } else if (genderFilter === 'female') {
+                    kidsParticipants = 
+                    kidsParticipants.filter(p => p.gender === 'F');
+                }
                 
                 // Sort by points
                 kidsParticipants.sort((a, b) => b.points - a.points);
@@ -214,7 +226,7 @@ const LeaderboardPageKids = () => {
                 gutterBottom
                 sx={{
                     textAlign: 'center',
-                    mb: 3,
+                    mb: 2,
                     color: '#FF6B6B',
                     fontWeight: 'bold',
                     flexShrink: 0,
@@ -227,6 +239,57 @@ const LeaderboardPageKids = () => {
                 <EmojiEventsIcon sx={{ fontSize: '2.5rem' }} />
                 Leaderboard Kids
             </Typography>
+
+            <Box sx={{ display: 'flex', justifyContent: 'center', 
+                mb: 3, flexShrink: 0 }}>
+                <ButtonGroup variant="contained" sx={{ boxShadow: 2 }}>
+                    <Button
+                        onClick={() => setGenderFilter('all')}
+                        sx={{
+                            backgroundColor: 
+                            genderFilter === 'all' ? '#FF6B6B' : '#e0e0e0',
+                            color: genderFilter === 'all' ? '#fff' : '#666',
+                            '&:hover': {
+                                backgroundColor: 
+                                genderFilter === 'all' ? '#ff5252' : 
+                                                 '#d0d0d0',
+                            },
+                        }}
+                    >
+                        Todos
+                    </Button>
+                    <Button
+                        onClick={() => setGenderFilter('male')}
+                        sx={{
+                            backgroundColor: 
+                            genderFilter === 'male' ? '#FF6B6B' : '#e0e0e0',
+                            color: genderFilter === 'male' ? '#fff' :'#666',
+                            '&:hover': {
+                                backgroundColor: 
+                                genderFilter === 'male' ? '#ff5252' : 
+                                                 '#d0d0d0',
+                            },
+                        }}
+                    >
+                        Varonil
+                    </Button>
+                    <Button
+                        onClick={() => setGenderFilter('female')}
+                        sx={{
+                            backgroundColor: 
+                            genderFilter === 'female' ? '#FF6B6B':'#e0e0e0',
+                            color: genderFilter === 'female'?'#fff':'#666',
+                            '&:hover': {
+                                backgroundColor: 
+                                genderFilter === 'female' ? '#ff5252' : 
+                                                 '#d0d0d0',
+                            },
+                        }}
+                    >
+                        Femenil
+                    </Button>
+                </ButtonGroup>
+            </Box>
 
             <Box
                 sx={{

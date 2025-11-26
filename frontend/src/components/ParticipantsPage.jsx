@@ -1,7 +1,11 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { MaterialReactTable } from 'material-react-table';
-import { Box, IconButton, Tooltip, Switch, Typography } from '@mui/material';
-import { Edit as EditIcon, Delete as DeleteIcon, Search as SearchIcon } from '@mui/icons-material';
+import { Box, IconButton, Tooltip, Switch, 
+    Typography, Paper } from '@mui/material';
+import { Edit as EditIcon, Delete as DeleteIcon, 
+    Search as SearchIcon } from '@mui/icons-material';
+import { People as PeopleIcon, Boy as BoyIcon, 
+    Girl as GirlIcon } from '@mui/icons-material';
 import AxiosObj from './Axios.jsx';
 import CustomSnackbar from './CustomSnackBar.jsx';
 import useSnackBar from './hooks/useSnackBar.jsx';
@@ -45,6 +49,34 @@ const ParticipantsPage = () => {
         fetchParticipants();
     }, []);
 
+    // Calculate statistics
+    const statistics = useMemo(() => {
+        const stats = {
+            kids: { total: 0, male: 0, female: 0 },
+            principiante: { total: 0, male: 0, female: 0 },
+            intermedio: { total: 0, male: 0, female: 0 },
+            avanzado: { total: 0, male: 0, female: 0 },
+            totals: { total: 0, male: 0, female: 0 }
+        };
+
+        participants.forEach(participant => {
+            if (participant.cup && stats[participant.cup]) {
+                stats[participant.cup].total++;
+                stats.totals.total++;
+                
+                if (participant.gender === 'M') {
+                    stats[participant.cup].male++;
+                    stats.totals.male++;
+                } else if (participant.gender === 'F') {
+                    stats[participant.cup].female++;
+                    stats.totals.female++;
+                }
+            }
+        });
+
+        return stats;
+    }, [participants]);
+
     // Handle toggle active status
     const handleToggleActive = (row) => {
         const participantId = row.original.id;
@@ -69,8 +101,8 @@ const ParticipantsPage = () => {
 
     // Handle delete
     const handleDelete = (row) => {
-        if (window.confirm(`¿Está seguro de eliminar a ${row.original.first_name} 
-            ${row.original.last_name}?`)) {
+        if (window.confirm(`¿Está seguro de eliminar a 
+            ${row.original.first_name} ${row.original.last_name}?`)) {
             AxiosObj.delete(`/participants/${row.original.id}/`)
                 .then(response => {
                     showSnackbar('Usuario eliminado correctamente', 'success');
@@ -196,6 +228,202 @@ const ParticipantsPage = () => {
             >
                 Gestión de Participantes
             </Typography>
+
+            {/* Statistics Section */}
+            <Box sx={{ 
+                mb: 3, 
+                flexShrink: 0, 
+                display: 'flex', 
+                justifyContent: 'center', 
+                gap: 2,
+                flexWrap: 'wrap'
+            }}>
+                {/* Kids */}
+                <Paper 
+                    elevation={3} 
+                    sx={{ 
+                        p: 2, 
+                        backgroundColor: '#FF6B6B',
+                        color: 'white',
+                        borderRadius: 2,
+                        minWidth: 180,
+                        maxWidth: 180,
+                    }}
+                >
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                        Kids
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', 
+                            gap: 1, mb: 0.5 }}>
+                        <PeopleIcon />
+                        <Typography variant="body1">
+                            Total: {statistics.kids.total}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', 
+                            gap: 1, mb: 0.5 }}>
+                        <BoyIcon />
+                        <Typography variant="body2">
+                            Varonil: {statistics.kids.male
+                        }</Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <GirlIcon />
+                        <Typography variant="body2">
+                            Femenil: {statistics.kids.female}
+                        </Typography>
+                    </Box>
+                </Paper>
+
+                {/* Beginner */}
+                <Paper 
+                    elevation={3} 
+                    sx={{ 
+                        p: 2, 
+                        backgroundColor: '#4ECDC4',
+                        color: 'white',
+                        borderRadius: 2,
+                        minWidth: 180,
+                        maxWidth: 180,
+                    }}
+                >
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                        Principiante
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', 
+                            gap: 1, mb: 0.5 }}>
+                        <PeopleIcon />
+                        <Typography variant="body1">
+                            Total: {statistics.principiante.total}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', 
+                            gap: 1, mb: 0.5 }}>
+                        <BoyIcon />
+                        <Typography variant="body2">
+                            Varonil: {statistics.principiante.male}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <GirlIcon />
+                        <Typography variant="body2">
+                            Femenil: {statistics.principiante.female}
+                        </Typography>
+                    </Box>
+                </Paper>
+
+                {/* Intermediate */}
+                <Paper 
+                    elevation={3} 
+                    sx={{ 
+                        p: 2, 
+                        backgroundColor: '#45B7D1',
+                        color: 'white',
+                        borderRadius: 2,
+                        minWidth: 180,
+                        maxWidth: 180,
+                    }}
+                >
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                        Intermedio
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', 
+                        gap: 1, mb: 0.5 }}>
+                        <PeopleIcon />
+                        <Typography variant="body1">
+                            Total: {statistics.intermedio.total}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', 
+                        gap: 1, mb: 0.5 }}>
+                        <BoyIcon />
+                        <Typography variant="body2">
+                            Varonil: {statistics.intermedio.male}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <GirlIcon />
+                        <Typography variant="body2">
+                            Femenil: {statistics.intermedio.female}
+                        </Typography>
+                    </Box>
+                </Paper>
+
+                {/* Advanced */}
+                <Paper 
+                    elevation={3} 
+                    sx={{ 
+                        p: 2, 
+                        backgroundColor: '#FFA07A',
+                        color: 'white',
+                        borderRadius: 2,
+                        minWidth: 180,
+                        maxWidth: 180,
+                    }}
+                >
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                        Avanzado
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', 
+                        gap: 1, mb: 0.5 }}>
+                        <PeopleIcon />
+                        <Typography variant="body1">
+                            Total: {statistics.avanzado.total}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', 
+                        gap: 1, mb: 0.5 }}>
+                        <BoyIcon />
+                        <Typography variant="body2">
+                            Varonil: {statistics.avanzado.male}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <GirlIcon />
+                        <Typography variant="body2">
+                            Femenil: {statistics.avanzado.female}
+                        </Typography>
+                    </Box>
+                </Paper>
+
+                {/* Total */}
+                <Paper 
+                    elevation={3} 
+                    sx={{ 
+                        p: 2, 
+                        backgroundColor: '#8e3f65',
+                        color: 'white',
+                        borderRadius: 2,
+                        minWidth: 180,
+                        maxWidth: 180,
+                    }}
+                >
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                        Total General
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', 
+                        gap: 1, mb: 0.5 }}>
+                        <PeopleIcon />
+                        <Typography variant="body1">
+                            Total: {statistics.totals.total}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', 
+                         gap: 1, mb: 0.5 }}>
+                        <BoyIcon />
+                        <Typography variant="body2">
+                            Varonil: {statistics.totals.male}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <GirlIcon />
+                        <Typography variant="body2">
+                            Femenil: {statistics.totals.female}
+                        </Typography>
+                    </Box>
+                </Paper>
+            </Box>
+
             <Box sx={{ flexGrow: 1, overflow: 'hidden', 
                     maxWidth: '90%', margin: '0 auto', width: '100%' }}>
                 <MaterialReactTable

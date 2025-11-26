@@ -1,7 +1,10 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { MaterialReactTable } from 'material-react-table';
-import { Box, IconButton, Tooltip, Typography, Chip } from '@mui/material';
+import { Box, IconButton, Tooltip,
+    Typography, Chip, Paper } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { Terrain as TerrainIcon, 
+    FilterHdr as FilterHdrIcon } from '@mui/icons-material';
 import AxiosObj from './Axios.jsx';
 import CustomSnackbar from './CustomSnackBar.jsx';
 import useSnackBar from './hooks/useSnackBar.jsx';
@@ -37,6 +40,107 @@ const RoutesPageAdmin = () => {
     useEffect(() => {
         fetchBlocks();
     }, []);
+
+    // Categories configuration
+    const categoriesConfig = {
+        kids: {
+            rutas: [
+                '5.8', 
+                '5.9', 
+                '5.10a'
+            ],
+            boulders: [
+                'V0', 
+                'V1'
+            ]
+        },
+        principiante: {
+            rutas: [
+                '5.9', 
+                '5.10a', 
+                '5.10b', 
+                '5.10c'
+            ],
+            boulders: [
+                'V0', 
+                'V1', 
+                'V2'
+            ]
+        },
+        intermedio: {
+            rutas: [
+                '5.10b', 
+                '5.10c', 
+                '5.10d', 
+                '5.11a', 
+                '5.11b'
+            ],
+            boulders: [
+                'V3', 
+                'V4', 
+                'V5'
+            ]
+        },
+        avanzado: {
+            rutas: [
+                '5.11c', 
+                '5.11d', 
+                '5.12a', 
+                '5.12b', 
+                '5.12c', 
+                '5.12d', 
+                '5.13a', 
+                '5.13b', 
+                '5.13c', 
+                '5.13d'
+            ],
+            boulders: [
+                'V5', 
+                'V6', 
+                'V7', 
+                'V8', 
+                'V9', 
+                'V10', 
+                'V11'
+            ]
+        }
+    };
+
+    // Calculate statistics
+    const statistics = useMemo(() => {
+        const stats = {
+            kids: { rutas: 0, boulders: 0, total: 0 },
+            principiante: { rutas: 0, boulders: 0, total: 0 },
+            intermedio: { rutas: 0, boulders: 0, total: 0 },
+            avanzado: { rutas: 0, boulders: 0, total: 0 },
+            totals: { rutas: 0, boulders: 0, total: 0 }
+        };
+
+        blocks.forEach(block => {
+            if (!block.active) return; // Only count active blocks
+
+            // Determine category based on grade
+            for (const [category, config] of Object.entries(categoriesConfig)) {
+                if (block.block_type === 'route' && 
+                    config.rutas.includes(block.grade)) {
+                    stats[category].rutas++;
+                    stats[category].total++;
+                    stats.totals.rutas++;
+                    stats.totals.total++;
+                    break;
+                } else if (block.block_type === 'boulder' && 
+                    config.boulders.includes(block.grade)) {
+                    stats[category].boulders++;
+                    stats[category].total++;
+                    stats.totals.boulders++;
+                    stats.totals.total++;
+                    break;
+                }
+            }
+        });
+
+        return stats;
+    }, [blocks]);
 
     // Handle delete
     const handleDelete = (row) => {
@@ -154,6 +258,194 @@ const RoutesPageAdmin = () => {
             >
                 Gestión de Bloques
             </Typography>
+
+            {/* Statistics Section */}
+            <Box sx={{ 
+                mb: 3, 
+                flexShrink: 0, 
+                display: 'flex', 
+                justifyContent: 'center', 
+                gap: 2,
+                flexWrap: 'wrap'
+            }}>
+                {/* Kids */}
+                <Paper 
+                    elevation={3} 
+                    sx={{ 
+                        p: 2, 
+                        backgroundColor: '#FF6B6B',
+                        color: 'white',
+                        borderRadius: 2,
+                        minWidth: 180,
+                        maxWidth: 180,
+                    }}
+                >
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                        Kids
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', 
+                            gap: 1, mb: 0.5 }}>
+                        <FilterHdrIcon />
+                        <Typography variant="body1">
+                            Total: {statistics.kids.total}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', 
+                            alignItems: 'center', gap: 1, mb: 0.5 }}>
+                        <TerrainIcon />
+                        <Typography variant="body2">
+                            Rutas: {statistics.kids.rutas}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <TerrainIcon sx={{ transform: 'rotate(45deg)' }} />
+                        <Typography variant="body2">
+                            Boulders: {statistics.kids.boulders}
+                        </Typography>
+                    </Box>
+                </Paper>
+
+                {/* Beginner */}
+                <Paper 
+                    elevation={3} 
+                    sx={{ 
+                        p: 2, 
+                        backgroundColor: '#4ECDC4',
+                        color: 'white',
+                        borderRadius: 2,
+                        minWidth: 180,
+                        maxWidth: 180,
+                    }}
+                >
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                        Principiante
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                        <FilterHdrIcon />
+                        <Typography variant="body1">Total: {statistics.principiante.total}</Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                        <TerrainIcon />
+                        <Typography variant="body2">Rutas: {statistics.principiante.rutas}</Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <TerrainIcon sx={{ transform: 'rotate(45deg)' }} />
+                        <Typography variant="body2">Boulders: {statistics.principiante.boulders}</Typography>
+                    </Box>
+                </Paper>
+
+                {/* Intermediate */}
+                <Paper 
+                    elevation={3} 
+                    sx={{ 
+                        p: 2, 
+                        backgroundColor: '#45B7D1',
+                        color: 'white',
+                        borderRadius: 2,
+                        minWidth: 180,
+                        maxWidth: 180,
+                    }}
+                >
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                        Intermedio
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', 
+                            gap: 1, mb: 0.5 }}>
+                        <FilterHdrIcon />
+                        <Typography variant="body1">
+                            Total: {statistics.intermedio.total}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', 
+                            gap: 1, mb: 0.5 }}>
+                        <TerrainIcon />
+                        <Typography variant="body2">
+                            Rutas: {statistics.intermedio.rutas}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <TerrainIcon sx={{ transform: 'rotate(45deg)' }} />
+                        <Typography variant="body2">
+                            Boulders: {statistics.intermedio.boulders}
+                        </Typography>
+                    </Box>
+                </Paper>
+
+                {/* Advanced Paper */}
+                <Paper 
+                    elevation={3} 
+                    sx={{ 
+                        p: 2, 
+                        backgroundColor: '#FFA07A',
+                        color: 'white',
+                        borderRadius: 2,
+                        minWidth: 180,
+                        maxWidth: 180,
+                    }}
+                >
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                        Avanzado
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', 
+                        gap: 1, mb: 0.5 }}>
+                        <FilterHdrIcon />
+                        <Typography variant="body1">
+                            Total: {statistics.avanzado.total}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', 
+                        gap: 1, mb: 0.5 }}>
+                        <TerrainIcon />
+                        <Typography variant="body2">
+                            Rutas: {statistics.avanzado.rutas}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <TerrainIcon sx={{ transform: 'rotate(45deg)' }} />
+                        <Typography variant="body2">
+                            Boulders: {statistics.avanzado.boulders}
+                        </Typography>
+                    </Box>
+                </Paper>
+
+                {/* Total */}
+                <Paper 
+                    elevation={3} 
+                    sx={{ 
+                        p: 2, 
+                        backgroundColor: '#8e3f65',
+                        color: 'white',
+                        borderRadius: 2,
+                        minWidth: 180,
+                        maxWidth: 180,
+                    }}
+                >
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                        Total General
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', 
+                        gap: 1, mb: 0.5 }}>
+                        <FilterHdrIcon />
+                        <Typography variant="body1">
+                            Total: {statistics.totals.total}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', 
+                            gap: 1, mb: 0.5 }}>
+                        <TerrainIcon />
+                        <Typography variant="body2">
+                            Rutas: {statistics.totals.rutas}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <TerrainIcon sx={{ transform: 'rotate(45deg)' }} />
+                        <Typography variant="body2">
+                            Boulders: {statistics.totals.boulders}
+                        </Typography>
+                    </Box>
+                </Paper>
+            </Box>
+
             <Box sx={{ flexGrow: 1, overflow: 'hidden', maxWidth: '90%', 
                 margin: '0 auto', width: '100%' }}>
                 <MaterialReactTable

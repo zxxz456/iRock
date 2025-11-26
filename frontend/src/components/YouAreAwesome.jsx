@@ -32,7 +32,7 @@ const YouAreAnIdiotAnimation = (props) => {
       top: Math.random() * 100,
       left: Math.random() * 100,
       animationDuration: 3 + Math.random() * 7, 
-      animationDelay: Math.random() * 5,
+      animationDelay: 0,
       imageUrl: faceImages[Math.floor(Math.random() * faceImages.length)],
       size: 30 + Math.random() * 70, 
       keyframes: generateRandomKeyframes()
@@ -92,6 +92,18 @@ const YouAreAnIdiotAnimation = (props) => {
       @keyframes faceMove-${face.id} {
         ${keyframeRules}
       }
+      @keyframes vibrate-${face.id} {
+        0%, 100% { transform: translate(0, 0); }
+        10% { transform: translate(-2px, 2px); }
+        20% { transform: translate(2px, -2px); }
+        30% { transform: translate(-2px, -2px); }
+        40% { transform: translate(2px, 2px); }
+        50% { transform: translate(-2px, 2px); }
+        60% { transform: translate(2px, -2px); }
+        70% { transform: translate(-2px, -2px); }
+        80% { transform: translate(2px, 2px); }
+        90% { transform: translate(-2px, 2px); }
+      }
     `;
   };
 
@@ -115,7 +127,6 @@ const YouAreAnIdiotAnimation = (props) => {
       }}
       onClick={startAudio}
     >
-      {/* Estilos CSS dinámicos para las animaciones */}
       <style>
         {`
           @keyframes textColorChange {
@@ -128,23 +139,6 @@ const YouAreAnIdiotAnimation = (props) => {
           ${faces.map(face => generateAnimationStyle(face)).join('')}
         `}
       </style>
-
-      {!audioPlaying && (
-        <Button
-          variant="contained"
-          color="secondary"
-          sx={{
-            position: 'absolute',
-            top: '20px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 10001
-          }}
-          onClick={startAudio}
-        >
-          🔈 Activar Sonido
-        </Button>
-      )}
 
       <Box
         sx={{
@@ -194,21 +188,29 @@ const YouAreAnIdiotAnimation = (props) => {
             width: `${face.size}px`,
             height: `${face.size}px`,
             animation: `faceMove-${face.id} ${face.animationDuration}s 
-            ease-in-out ${face.animationDelay}s infinite alternate`,
+            ease-in-out 0s infinite alternate`,
             userSelect: 'none',
             pointerEvents: 'none',
             filter: 'drop-shadow(2px 2px 2px rgba(0,0,0,0.5))'
           }}
         >
-          <img 
-            src={face.imageUrl} 
-            alt="smiley face" 
-            style={{
+          <Box
+            sx={{
               width: '100%',
               height: '100%',
-              objectFit: 'contain'
+              animation: `vibrate-${face.id} 0.1s infinite`
             }}
-          />
+          >
+            <img 
+              src={face.imageUrl} 
+              alt="smiley face" 
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain'
+              }}
+            />
+          </Box>
         </Box>
       ))}
 
