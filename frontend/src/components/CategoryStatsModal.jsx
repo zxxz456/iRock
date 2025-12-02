@@ -68,7 +68,8 @@ const CategoryStatsModal = ({ open, onClose, category, blocks, config }) => {
             if (isRutaInCategory) {
                 // Initialize if not exists (shouldn't happen, but safe)
                 if (!stats.rutas[block.grade]) {
-                    stats.rutas[block.grade] = { active: 0, inactive: 0, total: 0 };
+                    stats.rutas[block.grade] = 
+                                        { active: 0, inactive: 0, total: 0 };
                 }
                 if (block.active) stats.rutas[block.grade].active++;
                 else stats.rutas[block.grade].inactive++;
@@ -76,7 +77,8 @@ const CategoryStatsModal = ({ open, onClose, category, blocks, config }) => {
             } else if (isBoulderInCategory) {
                 // Initialize if not exists (shouldn't happen, but safe)
                 if (!stats.boulders[block.grade]) {
-                    stats.boulders[block.grade] = { active: 0, inactive: 0, total: 0 };
+                    stats.boulders[block.grade] = 
+                                        { active: 0, inactive: 0, total: 0 };
                 }
                 if (block.active) stats.boulders[block.grade].active++;
                 else stats.boulders[block.grade].inactive++;
@@ -130,16 +132,20 @@ const CategoryStatsModal = ({ open, onClose, category, blocks, config }) => {
                     gap: 2,
                 }}>
                     <Box sx={{ textAlign: 'center' }}>
-                        <Typography variant="h4" sx={{ fontWeight: 'bold', color: color }}>
-                            {Object.values(detailedStats.rutas).reduce((sum, s) => sum + s.total, 0)}
+                        <Typography variant="h4" 
+                        sx={{ fontWeight: 'bold', color: color }}>
+                            {Object.values(detailedStats.rutas).reduce(
+                                (sum, s) => sum + s.total, 0)}
                         </Typography>
                         <Typography variant="body1" color="text.secondary">
                             Total Rutas
                         </Typography>
                     </Box>
                     <Box sx={{ textAlign: 'center' }}>
-                        <Typography variant="h4" sx={{ fontWeight: 'bold', color: color }}>
-                            {Object.values(detailedStats.boulders).reduce((sum, s) => sum + s.total, 0)}
+                        <Typography variant="h4" 
+                        sx={{ fontWeight: 'bold', color: color }}>
+                            {Object.values(detailedStats.boulders).reduce(
+                                (sum, s) => sum + s.total, 0)}
                         </Typography>
                         <Typography variant="body1" color="text.secondary">
                             Total Boulders
@@ -165,16 +171,23 @@ const CategoryStatsModal = ({ open, onClose, category, blocks, config }) => {
                             <Table size="small">
                                 <TableHead>
                                     <TableRow sx={{ backgroundColor: color }}>
-                                        <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>
+                                        <TableCell sx={{ color: 'white', 
+                                            fontWeight: 'bold' }}>
                                             Grado
                                         </TableCell>
-                                        <TableCell align="center" sx={{ color: 'white', fontWeight: 'bold' }}>
+                                        <TableCell align="center" 
+                                        sx={{ color: 'white', 
+                                        fontWeight: 'bold' }}>
                                             Activas
                                         </TableCell>
-                                        <TableCell align="center" sx={{ color: 'white', fontWeight: 'bold' }}>
+                                        <TableCell align="center" 
+                                        sx={{ color: 'white', 
+                                        fontWeight: 'bold' }}>
                                             Inactivas
                                         </TableCell>
-                                        <TableCell align="center" sx={{ color: 'white', fontWeight: 'bold' }}>
+                                        <TableCell align="center" 
+                                        sx={{ color: 'white', 
+                                        fontWeight: 'bold' }}>
                                             Total
                                         </TableCell>
                                     </TableRow>

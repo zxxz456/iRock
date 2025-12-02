@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
-Script para cargar bloques y rutas desde bloques.csv a la base de datos,
-junto con sus opciones de puntaje desde puntos.csv.
+Script for loading blocks and routes from bloques.csv into the database,
+along with their score options from puntos.csv.
 """
 import os
 import sys
 import django
 import csv
+from api.models import Block, ScoreOption
 
 # Setup Django
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -15,24 +16,22 @@ sys.path.insert(0, BACKEND_DIR)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'crud.settings')
 django.setup()
 
-from api.models import Block, ScoreOption
-
-# Rutas de archivos CSV
+# CSV file paths
 BLOQUES_CSV = os.path.join(SCRIPT_DIR, 'bloques.csv')
 PUNTOS_CSV = os.path.join(SCRIPT_DIR, 'puntos.csv')
 
 
 def load_puntos_mapping():
     """
-    Carga el archivo puntos.csv y retorna un diccionario con los puntajes
-    por grado e intento.
+    load the csv file and return a dictionary with scores
+    by grade and attempt.
     
-    Formato esperado:
+    Expected format:
     grado,flash,segundo_intento,tercer_intento,mas
     V0,5,4,3,2
     5.9,10,7.5,5,4
     
-    Retorna:
+    Returns:
     {
         'V0': {'flash': 5, 'segundo': 4, 'tercero': 3, 'mas': 2},
         '5.9': {'flash': 10, 'segundo': 7.5, 'tercero': 5, 'mas': 4},
@@ -54,27 +53,27 @@ def load_puntos_mapping():
                 'mas': float(row['mas'])
             }
     
-    print(f"✓ Cargados puntajes para {len(puntos_map)} grados")
+    print(f" Cargados puntajes para {len(puntos_map)} grados")
     return puntos_map
 
 
 def create_score_options(block, grade, puntos_map):
     """
-    Crea las 4 opciones de puntaje para un bloque basándose en su grado.
+    Create the 4 score options for a block based on its grade.
     
     Args:
-        block: Instancia de Block
-        grade: String con el grado (e.g., 'V0', '5.9')
-        puntos_map: Diccionario con los puntajes por grado
+        block: Instance of Block
+        grade: String with the grade (e.g., 'V0', '5.9')
+        puntos_map: Dictionary with scores by grade
     """
-    # Si el grado está vacío o no existe en puntos_map, usar puntajes por defecto
+    # If grade is empty or not in puntos_map, use default scores
     if not grade or grade not in puntos_map:
-        print(f"  ⚠ Grado '{grade}' no encontrado en puntos.csv, usando 0 puntos")
+        print(f" Grado '{grade}' no encontrado en puntos.csv, usando 0 puntos")
         points = {'flash': 0, 'segundo': 0, 'tercero': 0, 'mas': 0}
     else:
         points = puntos_map[grade]
     
-    # Definir las 4 opciones de score
+    # Define the 4 score options
     score_options_data = [
         {
             'key': 'flash',
@@ -102,7 +101,7 @@ def create_score_options(block, grade, puntos_map):
         }
     ]
     
-    # Crear las opciones
+    # Create ScoreOption instances
     for option_data in score_options_data:
         ScoreOption.objects.create(
             block=block,
@@ -115,14 +114,14 @@ def create_score_options(block, grade, puntos_map):
 
 def load_blocks():
     """
-    Carga bloques desde bloques.csv y crea sus opciones de puntaje.
+    Load blocks from bloques.csv and create their score options.
     """
-    # Cargar mapeo de puntajes
+    # Load score mapping
     puntos_map = load_puntos_mapping()
     
     print(f"\nCargando bloques desde {BLOQUES_CSV}...")
     
-    # Contadores
+    # Cntrs
     blocks_created = 0
     blocks_updated = 0
     blocks_skipped = 0
@@ -137,28 +136,29 @@ def load_blocks():
             wall = row['wall'].strip() if row['wall'].strip() else 'N/A'
             distance_str = row['distance'].strip()
             
-            # Determinar tipo de bloque basándose en el prefijo del lane
+            # Determine block type based on lane prefix
             if lane.startswith('B_'):
                 block_type = Block.BOULDER
             elif lane.startswith('R_'):
                 block_type = Block.RUTA
             else:
-                # Si no tiene prefijo válido, usar 'N/A' y continuar como boulder
-                print(f"  ⚠ Lane '{lane}' no empieza con B_ ni R_, asignando como boulder")
+                # If it doesn't have a valid prefix, use 'N/A' 
+                # and continue as boulder
+                print(f" Lane '{lane}' no empieza con B_ ni R_, asignando como boulder")
                 block_type = Block.BOULDER
             
-            # Convertir distance a entero, usar 0 si está vacío
+            # Convert distance to integer, use 0 if empty
             try:
                 distance = int(distance_str) if distance_str else 0
             except ValueError:
-                print(f"  ⚠ Distance inválido para {lane}: '{distance_str}', usando 0")
+                print(f" Distance inválido para {lane}: '{distance_str}', usando 0")
                 distance = 0
             
-            # Verificar si el bloque ya existe
+            # Check if the block already exists
             existing_block = Block.objects.filter(lane=lane).first()
             
             if existing_block:
-                # Actualizar bloque existente
+                # Update existing block
                 existing_block.grade = grade
                 existing_block.color = color
                 existing_block.wall = wall
@@ -166,14 +166,14 @@ def load_blocks():
                 existing_block.block_type = block_type
                 existing_block.save()
                 
-                # Eliminar opciones de puntaje antiguas y crear nuevas
+                # Delete old score options and create new ones
                 existing_block.score_options.all().delete()
                 create_score_options(existing_block, grade, puntos_map)
                 
-                print(f"  ↻ Actualizado: {lane} ({block_type}) - {grade}")
+                print(f" Actualizado: {lane} ({block_type}) - {grade}")
                 blocks_updated += 1
             else:
-                # Crear nuevo bloque
+                # Create new
                 block = Block.objects.create(
                     lane=lane,
                     grade=grade,
@@ -184,20 +184,20 @@ def load_blocks():
                     active=True
                 )
                 
-                # Crear opciones de puntaje
+                # Create score options
                 create_score_options(block, grade, puntos_map)
                 
                 print(f"  ✓ Creado: {lane} ({block_type}) - {grade}")
                 blocks_created += 1
     
-    # Resumen
+    # Summary
     print("\n" + "="*60)
     print("RESUMEN DE CARGA")
     print("="*60)
     print(f"Bloques creados:     {blocks_created}")
     print(f"Bloques actualizados: {blocks_updated}")
     print(f"Bloques omitidos:    {blocks_skipped}")
-    print(f"Total procesados:    {blocks_created + blocks_updated + blocks_skipped}")
+    print(f"Total procesados: {blocks_created + blocks_updated + blocks_skipped}")
     print("="*60)
 
 
