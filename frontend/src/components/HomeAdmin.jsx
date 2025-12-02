@@ -83,36 +83,52 @@ const HomeAdmin = () => {
       };
     }
 
-    const rutas = routesInfo.filter(block => block.block_type === 'ruta');
-    const boulders = routesInfo.filter(block => block.block_type === 'boulder');
+    // Filter only valid routes and boulders (with valid grade format)
+    const rutas = routesInfo.filter(block => 
+      block.block_type === 'ruta' && 
+      /^5\.\d+[a-d]?$/.test(block.grade)
+    );
+    
+    const boulders = routesInfo.filter(block => 
+      block.block_type === 'boulder' && 
+      /^V\d+$/.test(block.grade)
+    );
 
-    // Sort routes by grad
+    // console.log('routes :', rutas.map(r => r.grade));
+    // console.log('Boulders:', boulders.map(b => b.grade));
+
+    // Sort routes by grade
     const rutasSorted = [...rutas].sort((a, b) => {
-      const getParts = (grade) => {
-        const match = (grade.grade || grade).match(/^5\.(\d+)([a-d]?)$/);
+      const getParts = (gradeStr) => {
+        const match = gradeStr.match(/^5\.(\d+)([a-d]?)$/);
         return match ? { num: parseInt(match[1]), sub: match[2] || '' } : 
                        { num: 0, sub: '' };
       };
       
-      const partsA = getParts(a);
-      const partsB = getParts(b);
+      const partsA = getParts(a.grade);
+      const partsB = getParts(b.grade);
       
-      // Comparar números primero
+      // Compare numbers first
       if (partsA.num !== partsB.num) {
         return partsA.num - partsB.num;
       }
       
-      // Comparar subgrados después
+      // Compare subgrades 
       const subOrder = { '': 0, 'a': 1, 'b': 2, 'c': 3, 'd': 4 };
       return subOrder[partsA.sub] - subOrder[partsB.sub];
     });
 
-    // Sort boulders by grade
+    // Sort boulders by grade (V0, V1, V2, etc.)
     const bouldersSorted = [...boulders].sort((a, b) => {
-      return a.grade.localeCompare(b.grade);
+      const getVNumber = (gradeStr) => {
+        const match = gradeStr.match(/^V(\d+)$/);
+        return match ? parseInt(match[1]) : 0;
+      };
+      
+      return getVNumber(a.grade) - getVNumber(b.grade);
     });
 
-    return {
+    const result = {
       highestRuta: rutasSorted.length > 0 ? 
         rutasSorted[rutasSorted.length - 1].grade : 'N/A',
       lowestRuta: rutasSorted.length > 0 ? 
@@ -121,6 +137,9 @@ const HomeAdmin = () => {
         bouldersSorted[bouldersSorted.length - 1].grade : 'N/A',
       lowestBoulder: bouldersSorted.length > 0 ? bouldersSorted[0].grade : 'N/A'
     };
+
+    console.log('Resultado:', result);
+    return result;
   };
 
   // Calculate league statistics (users by category)
@@ -147,7 +166,8 @@ const HomeAdmin = () => {
   };
 
   const { rutasCount, bouldersCount, totalUsers, activeUsers } = getStats();
-  const { highestRuta, lowestRuta, highestBoulder, lowestBoulder } = getBlockStats();
+  const { highestRuta, lowestRuta, highestBoulder, lowestBoulder } = 
+                                                                getBlockStats();
   const { kids, principiante, intermedio, avanzado } = getLeagueStats();
 
   useEffect(() => {

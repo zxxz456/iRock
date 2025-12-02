@@ -7,6 +7,8 @@ import logging
 from telegram import Bot
 from telegram.ext import Application, CommandHandler, ContextTypes
 from telegram.error import NetworkError, TimedOut
+import httpx
+import httpcore
 import time
 from datetime import datetime
 import qrcode
@@ -24,9 +26,8 @@ LOCAL_URL = "http://localhost:80"
 CHECK_INTERVAL = 60 #time between checks in seconds
 FAILURE_LIMIT = 1  #number of consecutive failures before restart
 
-# Get script directory for logs
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-LOG_DIR = os.path.join(SCRIPT_DIR, 'logs')
+# Log directory configuration
+LOG_DIR = '/var/log/cloud_monitor_bot'
 os.makedirs(LOG_DIR, exist_ok=True)
 LOG_FILE = os.path.join(LOG_DIR, 
                         f"bot_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
@@ -37,10 +38,20 @@ logging.basicConfig(
     level=logging.INFO,
     handlers=[
         logging.StreamHandler(),  # Console output
-        logging.FileHandler(LOG_FILE)  # File output
-    ]
+        logging.FileHandler(LOG_FILE, mode='a', encoding='utf-8')  # File output
+    ],
+    force=True
 )
 logger = logging.getLogger(__name__)
+
+# Silence noisy network library loggers - solo errores graves
+logging.getLogger("httpx").setLevel(logging.ERROR)
+logging.getLogger("httpcore").setLevel(logging.ERROR)
+logging.getLogger("telegram").setLevel(logging.WARNING)
+
+# Log file location to confirm creation
+print(f"=== ARCHIVO LOG: {LOG_FILE} ===")
+logger.info(f"Bot iniciando - Archivo log: {LOG_FILE}")
 
 class TunnelManager:
     def __init__(self, bot_token, chat_id, local_url):
@@ -351,19 +362,19 @@ async def error_handler(update, context):
     """
     Global error handler for bot errors
     """
-    # Ignore network errors - they are handled by retry loop
+    # Silently ignore common network errors - telegram library handles retries
     if isinstance(context.error, (NetworkError, TimedOut)):
-        logger.warning(
-            f"Error de red temporal (se reintentará automáticamente): {context.error}")
-        return
+        return  # No logging - estos son temporales y normales
     
-    logger.error(f"Update {update} caused error: {context.error}")
+    # Solo loggear errores inesperados
+    logger.error(f"Error inesperado: {context.error}", exc_info=False)
     try:
         if update and update.message:
             await update.message.reply_text(
                 "Ocurrió un error procesando tu comando. Intenta de nuevo."
             )
     except:
+        pass
         pass
 
 def main():

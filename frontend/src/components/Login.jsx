@@ -16,7 +16,13 @@ import useSnackBar from './hooks/useSnackBar.jsx';
 
 // DANGEROUS: for testing time-based redirection
 // remove before production
-let godUserTestEmail = "tralalero@gmail.com";
+let godUserTestEmail = [
+    "tralalero1@gmail.com",
+    "tralalero2@gmail.com",
+    "tralalero3@gmail.com",
+    "tralalero4@gmail.com",
+    "tralalero5@gmail.com"
+];
 
 const Login = () => {
 
@@ -76,39 +82,83 @@ const Login = () => {
                 cup: response.data.cup,
             }));
 
-            // Admins can go to admin page
+            // Admins bypass ALL restrictions and go directly to admin page
             // DANGEROUS: for testing time-based redirection
             // remove before production
             if (response.data.is_staff || response.data.is_superuser
-                || response.data.email === godUserTestEmail) {
-                // Admin/Staff users go to admin page
-                console.log('Redirecting to /admin');
+                || godUserTestEmail.includes(response.data.email)) {
+                // Admin/Staff users go to admin page without any time restrictions
                 navigate('/admin');
                 return;
             }
             
-            // Check if user is inactive or before target date
-            const targetDate = new Date('2025-12-06T08:00:00');
-            const currentDate = new Date();
+            // === PARTICIPANT RESTRICTIONS START HERE ===
             
-            if (!response.data.is_active ) {
+            // Check if user is inactive
+            if (!response.data.is_active) {
                 console.log('User is inactive, redirecting to /inactive');
                 navigate('/inactive');
                 return;
             }
 
-            if (currentDate < targetDate ) {
-                console.log('Current date is before target date, \
-                    redirecting to /inactive-date');
-                navigate('/inactive-date');
+            // Time windows based on category (ONLY FOR PARTICIPANTS)
+            const targetDateKidsBeg = new Date('2025-12-06T09:00:00');
+            const targetDateMedAdv = new Date('2025-12-06T11:00:00');
+            const endKids = new Date('2025-12-06T13:00:00');
+            const endBeg = new Date('2025-12-06T17:00:00');
+            const endMedAdv = new Date('2025-12-06T19:00:00');
+            const currentDate = new Date();
+            
+            const userCategory = response.data.cup;
+            console.log('User category:', userCategory);
+
+            if (userCategory === 'kids') {
+                if (currentDate < targetDateKidsBeg) {
+                    navigate('/inactive-date');
+                    return;
+                }
+                if (currentDate > endKids) {
+                    navigate('/competition-ended');
+                    return;
+                }
+                // User is within allowed time window
+                navigate('/participant');
+                return;
+            } else if (userCategory === 'principiante') {
+                if (currentDate < targetDateKidsBeg) {
+                    navigate('/inactive-date');
+                    return;
+                }
+                if (currentDate > endBeg) {
+                    navigate('/competition-ended');
+                    return;
+                }
+                // User is within allowed time window
+                navigate('/participant');
+                return;
+            } else if (userCategory === 'intermedio' || 
+                        userCategory === 'avanzado') {
+                if (currentDate < targetDateMedAdv) {
+                    navigate('/inactive-date');
+                    return;
+                }
+                if (currentDate > endMedAdv) {
+                    navigate('/competition-ended');
+                    return;
+                }
+                // User is within allowed time window
+                navigate('/participant');
+                return;
+            } else {
+                // Unknown category - deny access
+                console.log('Unknown category:', userCategory);
+                showSnackbar(
+                    'Categoría de usuario no válida. Contacta al administrador.', 
+                    'error', 6000);
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
                 return;
             }
-            
-            // Normal users go to participant page
-            console.log('Redirecting to /participant');
-            navigate('/participant');
-            return;
-
         })
         .catch(error => {
             console.error('There was an error logging in!', error);

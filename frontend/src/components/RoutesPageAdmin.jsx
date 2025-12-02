@@ -9,6 +9,7 @@ import AxiosObj from './Axios.jsx';
 import CustomSnackbar from './CustomSnackBar.jsx';
 import useSnackBar from './hooks/useSnackBar.jsx';
 import EditRouteAdmin from './EditRouteAdmin.jsx';
+import CategoryStatsModal from './CategoryStatsModal.jsx';
 
 /*
     Routes Management Page for Admins
@@ -20,6 +21,8 @@ const RoutesPageAdmin = () => {
     const [loading, setLoading] = useState(true);
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [selectedBlockId, setSelectedBlockId] = useState(null);
+    const [statsModalOpen, setStatsModalOpen] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState(null);
     const { showSnackbar, snackbarProps } = useSnackBar();
 
     // Fetch blocks
@@ -45,7 +48,6 @@ const RoutesPageAdmin = () => {
     const categoriesConfig = {
         kids: {
             rutas: [
-                '5.8', 
                 '5.9', 
                 '5.10a'
             ],
@@ -73,9 +75,11 @@ const RoutesPageAdmin = () => {
                 '5.10c', 
                 '5.10d', 
                 '5.11a', 
-                '5.11b'
+                '5.11b',
+                '5.11c'
             ],
             boulders: [
+                'V2',
                 'V3', 
                 'V4', 
                 'V5'
@@ -83,6 +87,11 @@ const RoutesPageAdmin = () => {
         },
         avanzado: {
             rutas: [
+                '5.10b', 
+                '5.10c', 
+                '5.10d', 
+                '5.11a', 
+                '5.11b',
                 '5.11c', 
                 '5.11d', 
                 '5.12a', 
@@ -95,13 +104,13 @@ const RoutesPageAdmin = () => {
                 '5.13d'
             ],
             boulders: [
+                'V3',
+                'V4', 
                 'V5', 
                 'V6', 
                 'V7', 
                 'V8', 
-                'V9', 
-                'V10', 
-                'V11'
+                'V9'
             ]
         }
     };
@@ -169,6 +178,11 @@ const RoutesPageAdmin = () => {
 
     const handleEditSuccess = () => {
         fetchBlocks();
+    };
+
+    const handleOpenStats = (category) => {
+        setSelectedCategory(category);
+        setStatsModalOpen(true);
     };
 
     const columns = useMemo(
@@ -278,7 +292,13 @@ const RoutesPageAdmin = () => {
                         borderRadius: 2,
                         minWidth: 180,
                         maxWidth: 180,
+                        cursor: 'pointer',
+                        transition: 'transform 0.2s',
+                        '&:hover': {
+                            transform: 'scale(1.05)',
+                        },
                     }}
+                    onClick={() => handleOpenStats('kids')}
                 >
                     <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
                         Kids
@@ -315,7 +335,13 @@ const RoutesPageAdmin = () => {
                         borderRadius: 2,
                         minWidth: 180,
                         maxWidth: 180,
+                        cursor: 'pointer',
+                        transition: 'transform 0.2s',
+                        '&:hover': {
+                            transform: 'scale(1.05)',
+                        },
                     }}
+                    onClick={() => handleOpenStats('principiante')}
                 >
                     <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
                         Principiante
@@ -344,7 +370,13 @@ const RoutesPageAdmin = () => {
                         borderRadius: 2,
                         minWidth: 180,
                         maxWidth: 180,
+                        cursor: 'pointer',
+                        transition: 'transform 0.2s',
+                        '&:hover': {
+                            transform: 'scale(1.05)',
+                        },
                     }}
+                    onClick={() => handleOpenStats('intermedio')}
                 >
                     <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
                         Intermedio
@@ -381,7 +413,13 @@ const RoutesPageAdmin = () => {
                         borderRadius: 2,
                         minWidth: 180,
                         maxWidth: 180,
+                        cursor: 'pointer',
+                        transition: 'transform 0.2s',
+                        '&:hover': {
+                            transform: 'scale(1.05)',
+                        },
                     }}
+                    onClick={() => handleOpenStats('avanzado')}
                 >
                     <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
                         Avanzado
@@ -507,6 +545,15 @@ const RoutesPageAdmin = () => {
                 onClose={() => setEditModalOpen(false)}
                 blockId={selectedBlockId}
                 onSuccess={handleEditSuccess}
+            />
+            <CategoryStatsModal 
+                open={statsModalOpen}
+                onClose={() => setStatsModalOpen(false)}
+                category={selectedCategory}
+                blocks={blocks}
+                config={selectedCategory && selectedCategory !== 'totals' 
+                    ? categoriesConfig[selectedCategory] 
+                    : null}
             />
             <CustomSnackbar {...snackbarProps} />
         </Box>

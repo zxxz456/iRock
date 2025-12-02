@@ -11,6 +11,7 @@ import CustomSnackbar from './CustomSnackBar.jsx';
 import useSnackBar from './hooks/useSnackBar.jsx';
 import EditParticipantAdmin from './EditParticipantAdmin.jsx';
 import ParticipantAscensionsDetail from './ParticipantAscensionsDetail.jsx';
+import ParticipantsByCategoryModal from './ParticipantsByCategoryModal.jsx';
 
 /*
     Participants Page for Admins
@@ -24,6 +25,8 @@ const ParticipantsPage = () => {
     const [ascensionsModalOpen, setAscensionsModalOpen] = useState(false);
     const [selectedParticipantId, setSelectedParticipantId] = useState(null);
     const [selectedParticipantName, setSelectedParticipantName] = useState('');
+    const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState(null);
     const { showSnackbar, snackbarProps } = useSnackBar();
 
     // Fetch participants
@@ -133,6 +136,11 @@ const ParticipantsPage = () => {
 
     const handleEditSuccess = () => {
         fetchParticipants();
+    };
+
+    const handleOpenCategory = (category) => {
+        setSelectedCategory(category);
+        setCategoryModalOpen(true);
     };
 
     const columns = useMemo(
@@ -248,7 +256,13 @@ const ParticipantsPage = () => {
                         borderRadius: 2,
                         minWidth: 180,
                         maxWidth: 180,
+                        cursor: 'pointer',
+                        transition: 'transform 0.2s',
+                        '&:hover': {
+                            transform: 'scale(1.05)',
+                        },
                     }}
+                    onClick={() => handleOpenCategory('kids')}
                 >
                     <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
                         Kids
@@ -285,7 +299,13 @@ const ParticipantsPage = () => {
                         borderRadius: 2,
                         minWidth: 180,
                         maxWidth: 180,
+                        cursor: 'pointer',
+                        transition: 'transform 0.2s',
+                        '&:hover': {
+                            transform: 'scale(1.05)',
+                        },
                     }}
+                    onClick={() => handleOpenCategory('principiante')}
                 >
                     <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
                         Principiante
@@ -322,7 +342,13 @@ const ParticipantsPage = () => {
                         borderRadius: 2,
                         minWidth: 180,
                         maxWidth: 180,
+                        cursor: 'pointer',
+                        transition: 'transform 0.2s',
+                        '&:hover': {
+                            transform: 'scale(1.05)',
+                        },
                     }}
+                    onClick={() => handleOpenCategory('intermedio')}
                 >
                     <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
                         Intermedio
@@ -359,7 +385,13 @@ const ParticipantsPage = () => {
                         borderRadius: 2,
                         minWidth: 180,
                         maxWidth: 180,
+                        cursor: 'pointer',
+                        transition: 'transform 0.2s',
+                        '&:hover': {
+                            transform: 'scale(1.05)',
+                        },
                     }}
+                    onClick={() => handleOpenCategory('avanzado')}
                 >
                     <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
                         Avanzado
@@ -499,6 +531,12 @@ const ParticipantsPage = () => {
                 onClose={() => setAscensionsModalOpen(false)}
                 participantId={selectedParticipantId}
                 participantName={selectedParticipantName}
+            />
+            <ParticipantsByCategoryModal
+                open={categoryModalOpen}
+                onClose={() => setCategoryModalOpen(false)}
+                category={selectedCategory}
+                participants={participants}
             />
             <CustomSnackbar {...snackbarProps} />
         </Box>

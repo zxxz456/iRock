@@ -157,7 +157,7 @@ class BlockScore(models.Model):
     block = models.ForeignKey(
         Block, on_delete=models.CASCADE, related_name='scores'
     )
-    score_option = models.ForeignKey(ScoreOption, on_delete=models.PROTECT)
+    score_option = models.ForeignKey(ScoreOption, on_delete=models.CASCADE)
     earned_points = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 

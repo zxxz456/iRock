@@ -26,6 +26,7 @@ import EditRouteAdmin from './components/EditRouteAdmin.jsx'
 import RegisterParticipantAdmin from './components/RegisterParticipantAdmin.jsx'
 import EditParticipantAdmin from './components/EditParticipantAdmin.jsx'
 import InactiveUserDate from './components/InactiveUserDate.jsx'
+import CompetitionEnded from './components/CompetitionEnded.jsx'
 
 /*
   Main application component defining all routes.
@@ -40,6 +41,7 @@ function App() {
         <Route path="/register" element={<RegisterParticipant />} />
         <Route path="/inactive" element={<InactiveUser />} />
         <Route path="/inactive-date" element={<InactiveUserDate />} />
+        <Route path="/competition-ended" element={<CompetitionEnded />} />
 
         {/* Routes with UserNavAppBar for regular users */}
         <Route path="/participant" element={
