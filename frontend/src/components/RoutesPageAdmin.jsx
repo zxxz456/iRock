@@ -125,26 +125,46 @@ const RoutesPageAdmin = () => {
             totals: { rutas: 0, boulders: 0, total: 0 }
         };
 
-        blocks.forEach(block => {
-            if (!block.active) return; // Only count active blocks
+        // Count for each category independently (same logic as CategoryStatsModal)
+        for (const [category, config] of Object.entries(categoriesConfig)) {
+            blocks.forEach(block => {
+                if (!block.active) return; // Only count active blocks
 
-            // Determine category based on grade
-            for (const [category, config] of Object.entries(categoriesConfig)) {
-                if (block.block_type === 'route' && 
+                if (block.block_type === 'ruta' && 
                     config.rutas.includes(block.grade)) {
                     stats[category].rutas++;
                     stats[category].total++;
-                    stats.totals.rutas++;
-                    stats.totals.total++;
-                    break;
                 } else if (block.block_type === 'boulder' && 
                     config.boulders.includes(block.grade)) {
                     stats[category].boulders++;
                     stats[category].total++;
-                    stats.totals.boulders++;
-                    stats.totals.total++;
+                }
+            });
+        }
+
+        // Calculate totals (count each block only once)
+        const countedBlocks = new Set();
+        blocks.forEach(block => {
+            if (!block.active) return;
+            
+            // Check if this block belongs to any category
+            let belongsToCategory = false;
+            for (const config of Object.values(categoriesConfig)) {
+                if ((block.block_type === 'ruta' && config.rutas.includes(block.grade)) ||
+                    (block.block_type === 'boulder' && config.boulders.includes(block.grade))) {
+                    belongsToCategory = true;
                     break;
                 }
+            }
+            
+            if (belongsToCategory && !countedBlocks.has(block.id)) {
+                countedBlocks.add(block.id);
+                if (block.block_type === 'ruta') {
+                    stats.totals.rutas++;
+                } else if (block.block_type === 'boulder') {
+                    stats.totals.boulders++;
+                }
+                stats.totals.total++;
             }
         });
 

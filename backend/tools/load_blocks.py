@@ -5,16 +5,21 @@ along with their score options from puntos.csv.
 """
 import os
 import sys
-import django
 import csv
-from api.models import Block, ScoreOption
 
 # Setup Django
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 BACKEND_DIR = os.path.dirname(SCRIPT_DIR)
 sys.path.insert(0, BACKEND_DIR)
+
+# Configure Django settings before importing models
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'crud.settings')
+
+import django
 django.setup()
+
+# Now import Django models
+from api.models import Block, ScoreOption
 
 # CSV file paths
 BLOQUES_CSV = os.path.join(SCRIPT_DIR, 'bloques.csv')
@@ -208,13 +213,13 @@ if __name__ == '__main__':
     
     try:
         load_blocks()
-        print("\n✓ Carga completada exitosamente!\n")
+        print("\n Carga completada exitosamente!\n")
     except FileNotFoundError as e:
-        print(f"\n✗ Error: Archivo no encontrado - {e}")
+        print(f"\n Error: Archivo no encontrado - {e}")
         print("  Asegúrate de que bloques.csv y puntos.csv estén en tools/\n")
         sys.exit(1)
     except Exception as e:
-        print(f"\n✗ Error durante la carga: {e}")
+        print(f"\n Error durante la carga: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)
