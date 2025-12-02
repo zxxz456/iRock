@@ -14,8 +14,8 @@ const InactiveUserDate = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const [userInfo, setUserInfo] = useState(null);
-    const kidsBeginersStartDate = new Date('2025-12-06T08:00:00');
-    const interAdvancedStartDate = new Date('2025-12-07T08:00:00');
+    const kidsBeginersStartDate = new Date('2025-12-06T09:00:00');
+    const interAdvancedStartDate = new Date('2025-12-06T11:00:00');
 
     useEffect(() => {
     console.log("User object:", user); // dbg
