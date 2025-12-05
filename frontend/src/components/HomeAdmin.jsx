@@ -47,11 +47,11 @@ const HomeAdmin = () => {
 
     // Count total routes and boulders in the system
     const rutasCount = routesInfo.filter(block => 
-      block.block_type === 'ruta'
+      block.block_type === 'ruta' && block.is_active === true
     ).length;
     
     const bouldersCount = routesInfo.filter(block => 
-      block.block_type === 'boulder'
+      block.block_type === 'boulder' && block.is_active === true
     ).length;
 
     // console.log(participantsInfo)
