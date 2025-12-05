@@ -1,7 +1,5 @@
 # iRock App (Beta)
 
-> **Competition Management System for Climbing Gyms**
-
 ## Core Problem
 
 Traditionally, climbing competitions rely on paper scorecards and manual data entry. Staff members must collect physical sheets and transcribe scores into Excel macros one by one. This manual process is:
