@@ -150,8 +150,10 @@ const RoutesPageAdmin = () => {
             // Check if this block belongs to any category
             let belongsToCategory = false;
             for (const config of Object.values(categoriesConfig)) {
-                if ((block.block_type === 'ruta' && config.rutas.includes(block.grade)) ||
-                    (block.block_type === 'boulder' && config.boulders.includes(block.grade))) {
+                if ((block.block_type === 'ruta' && 
+                    config.rutas.includes(block.grade)) ||
+                    (block.block_type === 'boulder' && 
+                        config.boulders.includes(block.grade))) {
                     belongsToCategory = true;
                     break;
                 }

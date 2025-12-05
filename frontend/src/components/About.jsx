@@ -153,7 +153,7 @@ const AboutPage = () => {
                                   gap: 2, 
                                   flexWrap: 'wrap' }}
                         >
-                            <Button
+                            {/*<Button
                                 variant="outlined"
                                 startIcon={<GitHubIcon />}
                                 href="https://github.com/zxxz456"
@@ -170,7 +170,7 @@ const AboutPage = () => {
                                 }}
                             >
                                 GitHub
-                            </Button>
+                            </Button>*/}
 
                             <Button
                                 variant="outlined"

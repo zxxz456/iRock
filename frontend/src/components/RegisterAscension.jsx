@@ -151,7 +151,8 @@ const RegisterAscension = () => {
   const availableBlocks = useMemo(() => {
     const active = routesInfo.filter(route => route.active);
     const completedBlockIds = ascensionsInfo.map(ascension => ascension.block);
-    const notCompleted = active.filter(route => !completedBlockIds.includes(route.id));
+    const notCompleted = active.filter(
+      route => !completedBlockIds.includes(route.id));
     return notCompleted.filter(route => isRouteValidForCup(route, user?.cup));
   }, [routesInfo, ascensionsInfo, user]);
 
