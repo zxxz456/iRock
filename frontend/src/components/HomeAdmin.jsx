@@ -46,13 +46,16 @@ const HomeAdmin = () => {
     }
 
     // Count total routes and boulders in the system
-    const rutasCount = routesInfo.filter(block => 
-      block.block_type === 'ruta' && block.is_active === true
+
+    const activeRoutes = routesInfo.filter(block => block.is_active);
+
+    const rutasCount = activeRoutes.filter(block => 
+      block.block_type === 'ruta').length;
+    
+    const bouldersCount = activeRoutes.filter(block => 
+      block.block_type === 'boulder'
     ).length;
     
-    const bouldersCount = routesInfo.filter(block => 
-      block.block_type === 'boulder' && block.is_active === true
-    ).length;
 
     // console.log(participantsInfo)
     // Count total and active users
