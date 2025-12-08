@@ -93,27 +93,7 @@ This system operates on a **zero-budget infrastructure**. It is hosted on a loca
 **The Challenge:** The free tier tunnel service can occasionally disconnect or require restarts.
 **The Solution:** A custom Python automation bot (`TunnelManager`) was implemented to ensure ~90% uptime during the event (THIS IS OKAY, users are not intended to submit every sec, 1 sumbit each 5 mins avg).
 
-![BA](diagrams/BOT_ARQ.png)
-
-### Tunnel Manager Bot (Telegram)
-Encapsulates tunnel lifecycle management, health monitoring, and alerting.
-* **Health Check:** A continuous loop pings the service.
-* **Auto-Healing:** If the tunnel goes down, the script restarts the process automatically.
-* **Alerting:** Sends real-time logs and new URL generation status to admins via a Telegram Bot.
-
-Here is the class diagram
-
-
-
-![BA](diagrams/BOT_CLASS.png)
-
-
-
-and the UML for better visulization of bot lifecycle
-
-
-
-![BA](diagrams/LOOP.png)
+For more info visit [cloudflare bot project](https://github.com/zxxz456/cloudfalre_tunnel_bot).
 
 ## Conclusions
 
