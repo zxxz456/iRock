@@ -106,7 +106,7 @@ const Login = () => {
             const targetDateMedAdv = new Date('2025-12-06T11:00:00');
             const endKids = new Date('2025-12-06T13:00:00');
             const endBeg = new Date('2025-12-06T17:00:00');
-            const endMedAdv = new Date('2025-12-06T19:00:00');
+            const endMedAdv = new Date('2025-12-31T19:00:00');
             const currentDate = new Date();
             
             const userCategory = response.data.cup;

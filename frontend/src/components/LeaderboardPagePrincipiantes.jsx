@@ -67,8 +67,10 @@ const LeaderboardPagePrincipiantes = () => {
                     principiantesParticipants.filter(p => p.gender === 'F');
                 }
                 
-                // Sort by points
-                principiantesParticipants.sort((a, b) => b.points - a.points);
+                // Sort by score (fallback to points) in descending order
+                principiantesParticipants.sort((a, b) =>
+                    (b.score ?? b.points ?? 0) - (a.score ?? a.points ?? 0)
+                );
 
                 setLeaderboards({
                     kids: [],
